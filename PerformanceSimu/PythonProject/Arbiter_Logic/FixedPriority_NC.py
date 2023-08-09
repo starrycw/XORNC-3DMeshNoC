@@ -139,7 +139,7 @@ def arbiterNCLogic_fixedPriority(addrLocal_tuple, fifoStates_tuple, reqIP_tuple,
     # Encoding NS
     elif NS_encoding_ifEncoding and NS_encodingFw_ifallsat and reqN_tuple[0] and reqS_tuple[0] and (not reqN_tuple[7]) and (not reqS_tuple[7]):
         grants_tuple = (False, False, False, True, True, False, False)
-        forward_tuple = opy.deepcopy(NS_encodingFw_target)
+        forward_tuple = copy.deepcopy(NS_encodingFw_target)
         if_performingEncoding = True
     # IP - XYZ
     elif reqIP_tuple[0] and IP_forwardXYZ_ifallsat:
