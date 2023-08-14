@@ -1,7 +1,7 @@
 # The top designs of Routers
 import copy
 
-import Simulation.ActiveConfiguration as imported_ActiveConfiguration
+import Simulation.SimuConfigurationClass as imported_ActiveConfiguration
 import Arbiter_Logic.FixedPriority as imported_FixedPriorityArbiter
 import Arbiter_Logic.FixedPriority_NC as imported_NCFixedPriorityArbiter
 
