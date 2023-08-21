@@ -6,7 +6,7 @@ class SimuConfigs:
     Contains the value of the configurable params for simulation.
     '''
 
-    def __init__(self, param_flitBitWidth = 64, param_addrBitWidth_tuple = (2, 2, 2), param_FIFOFlitDepth = 3):
+    def __init__(self, param_flitBitWidth = 64, param_addrBitWidth_tuple = (2, 2, 2), param_FIFOFlitDepth = 3, param_IP_FlitSent_nMax = 10000, param_IP_FlitReceive_nMax = 10000):
         '''
 
         :param param_flitBitWidth: int - The bit-width of each flit. The default value is 64.
@@ -15,10 +15,14 @@ class SimuConfigs:
         assert isinstance(param_addrBitWidth_tuple, tuple) and len(param_addrBitWidth_tuple) == 3
         assert isinstance(param_addrBitWidth_tuple, int) and ( param_flitBitWidth > 2 * (param_addrBitWidth_tuple[0] + param_addrBitWidth_tuple[1] + param_addrBitWidth_tuple[2]) )
         assert isinstance(param_FIFOFlitDepth, int) and (param_FIFOFlitDepth > 0)
+        assert isinstance(param_IP_FlitSent_nMax, int) and (param_IP_FlitSent_nMax > 0)
+        assert isinstance(param_IP_FlitReceive_nMax, int) and (param_IP_FlitReceive_nMax > 0)
 
         self._param_flitBitWidth = param_flitBitWidth
         self._param_addrBitWidth = copy.deepcopy(param_addrBitWidth_tuple)
         self._param_FIFO_flitDepth = copy.deepcopy(param_FIFOFlitDepth)
+        self._param_IP_FlitSent_nMax = copy.deepcopy(param_IP_FlitSent_nMax)
+        self._param_IP_FlitReceive_nMax = copy.deepcopy(param_IP_FlitReceive_nMax)
 
 
     def getParam_flitBitWidth(self):
@@ -49,6 +53,20 @@ class SimuConfigs:
 
     def getParam_FIFOFlitDepth(self):
         return copy.deepcopy(self._param_FIFO_flitDepth)
+
+    def getParam_IPFlitSent_nMax(self):
+        '''
+        The depth of IP-to-Switch FIFOs
+        :return:
+        '''
+        return copy.deepcopy(self._param_IP_FlitSent_nMax)
+
+    def getParam_IPFlitReceive_nMax(self):
+        '''
+        The depth of Switch-to-IP FIFOs
+        :return:
+        '''
+        return copy.deepcopy(self._param_IP_FlitReceive_nMax)
 
     # Flit:
     #   uncoded head flit (head): [0] = True, [1] = True, [2] = True, [3:x] is address
