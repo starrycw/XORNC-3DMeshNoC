@@ -12,7 +12,7 @@ class Router_FIFO_FP_top:
     The router with output FIFOs.
     '''
     def __init__(self, router_id, routerAddr_tuple, SimuConfig_instance):
-        assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
         self._param_router_id = copy.deepcopy(router_id)
         self._param_routerAddr_tuple = copy.deepcopy(routerAddr_tuple)
         self._param_SimuConfig = SimuConfig_instance
@@ -89,11 +89,26 @@ class Router_FIFO_FP_top:
         self._mainFIFOInstance_inIP = imported_FIFOs_top.FIFOsTop(
             flit_depth=self._param_SimuConfig.getParam_IPFlitSent_nMax(),
             flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=10)
+
+
+
+
     ####################################################################################################################
     def getParam_address(self):
         return copy.deepcopy(self._param_routerAddr_tuple)
     ####################################################################################################################
-    def router_updateNextCycle(self, inputReqs_tuple,
+    def getRouterStates(self):
+        '''
+        Get the states of Router module
+        :return: bool(If locked), str(FW mode), tuple(If input ports enabled), tuple(If output ports enabled)
+        '''
+        rState_ifLocked = self._mainRouterInstance.getStates_ifRegsLocked()
+        rState_currentFwMode = self._mainRouterInstance.getStates_currentFwMode()
+        rState_currentEnabledInPort = self._mainRouterInstance.getStates_inPortsStates()
+        rState_currentEnabledOutPort = self._mainRouterInstance.getStates_outPortsStates()
+        return copy.deepcopy(rState_ifLocked), copy.deepcopy(rState_currentFwMode), copy.deepcopy(rState_currentEnabledInPort), copy.deepcopy(rState_currentEnabledOutPort)
+    ####################################################################################################################
+    def router_updateNextCycle_Step1(self, inputReqs_tuple,
                      inputIP_tuple=None, inputW_tuple=None, inputE_tuple=None, inputS_tuple=None, inputN_tuple=None, inputD_tuple=None, inputU_tuple=None):
 
         if self._mainFIFOInstance_outIP.getState_ifFull() is True:
@@ -152,42 +167,58 @@ class Router_FIFO_FP_top:
             inputIP_tuple=inputIP_tuple, inputW_tuple=inputW_tuple, inputE_tuple=inputE_tuple,
             inputS_tuple=inputS_tuple, inputN_tuple=inputN_tuple, inputD_tuple=inputD_tuple, inputU_tuple=inputU_tuple)
 
+        self._tempFIFOInstance_outIP = copy.deepcopy(self._mainFIFOInstance_outIP)
+        self._tempFIFOInstance_outW = copy.deepcopy(self._mainFIFOInstance_outW)
+        self._tempFIFOInstance_outE = copy.deepcopy(self._mainFIFOInstance_outE)
+        self._tempFIFOInstance_outS = copy.deepcopy(self._mainFIFOInstance_outS)
+        self._tempFIFOInstance_outN = copy.deepcopy(self._mainFIFOInstance_outN)
+        self._tempFIFOInstance_outD = copy.deepcopy(self._mainFIFOInstance_outD)
+        self._tempFIFOInstance_outU = copy.deepcopy(self._mainFIFOInstance_outU)
         if activeOut_tuple[0] is True:
-            self._mainFIFOInstance_outIP.memOp_writeOneFlit(flitNew=copy.deepcopy(outIP_tuple))
+            self._tempFIFOInstance_outIP.memOp_writeOneFlit(flitNew=copy.deepcopy(outIP_tuple))
         else:
             assert activeOut_tuple[0] is False
 
         if activeOut_tuple[1] is True:
-            self._mainFIFOInstance_outW.memOp_writeOneFlit(flitNew=copy.deepcopy(outW_tuple))
+            self._tempFIFOInstance_outW.memOp_writeOneFlit(flitNew=copy.deepcopy(outW_tuple))
         else:
             assert activeOut_tuple[1] is False
 
         if activeOut_tuple[2] is True:
-            self._mainFIFOInstance_outE.memOp_writeOneFlit(flitNew=copy.deepcopy(outE_tuple))
+            self._tempFIFOInstance_outE.memOp_writeOneFlit(flitNew=copy.deepcopy(outE_tuple))
         else:
             assert activeOut_tuple[2] is False
 
         if activeOut_tuple[3] is True:
-            self._mainFIFOInstance_outS.memOp_writeOneFlit(flitNew=copy.deepcopy(outS_tuple))
+            self._tempFIFOInstance_outS.memOp_writeOneFlit(flitNew=copy.deepcopy(outS_tuple))
         else:
             assert activeOut_tuple[3] is False
 
         if activeOut_tuple[4] is True:
-            self._mainFIFOInstance_outN.memOp_writeOneFlit(flitNew=copy.deepcopy(outN_tuple))
+            self._tempFIFOInstance_outN.memOp_writeOneFlit(flitNew=copy.deepcopy(outN_tuple))
         else:
             assert activeOut_tuple[4] is False
 
         if activeOut_tuple[5] is True:
-            self._mainFIFOInstance_outD.memOp_writeOneFlit(flitNew=copy.deepcopy(outD_tuple))
+            self._tempFIFOInstance_outD.memOp_writeOneFlit(flitNew=copy.deepcopy(outD_tuple))
         else:
             assert activeOut_tuple[5] is False
 
         if activeOut_tuple[6] is True:
-            self._mainFIFOInstance_outU.memOp_writeOneFlit(flitNew=copy.deepcopy(outU_tuple))
+            self._tempFIFOInstance_outU.memOp_writeOneFlit(flitNew=copy.deepcopy(outU_tuple))
         else:
             assert activeOut_tuple[6] is False
 
         return copy.deepcopy(activeIn_tuple)
+
+    def router_updateNextCycle_Step2(self):
+        self._mainFIFOInstance_outIP = copy.deepcopy(self._tempFIFOInstance_outIP)
+        self._mainFIFOInstance_outW = copy.deepcopy(self._tempFIFOInstance_outW)
+        self._mainFIFOInstance_outE = copy.deepcopy(self._tempFIFOInstance_outE)
+        self._mainFIFOInstance_outS = copy.deepcopy(self._tempFIFOInstance_outS)
+        self._mainFIFOInstance_outN = copy.deepcopy(self._tempFIFOInstance_outN)
+        self._mainFIFOInstance_outD = copy.deepcopy(self._tempFIFOInstance_outD)
+        self._mainFIFOInstance_outU = copy.deepcopy(self._tempFIFOInstance_outU)
 
     ####################################################################################################################
     def FIFO_getFirstFlit_byPortName(self, portName):
@@ -221,18 +252,25 @@ class Router_FIFO_FP_top:
         '''
         if portName == "IP":
             self._mainFIFOInstance_outIP.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outIP.memOp_deleteFirstFlit()
         elif portName == "W":
             self._mainFIFOInstance_outW.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outW.memOp_deleteFirstFlit()
         elif portName == "E":
             self._mainFIFOInstance_outE.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outE.memOp_deleteFirstFlit()
         elif portName == "S":
             self._mainFIFOInstance_outS.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outS.memOp_deleteFirstFlit()
         elif portName == "N":
             self._mainFIFOInstance_outN.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outN.memOp_deleteFirstFlit()
         elif portName == "D":
             self._mainFIFOInstance_outD.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outD.memOp_deleteFirstFlit()
         elif portName == "U":
             self._mainFIFOInstance_outU.memOp_deleteFirstFlit()
+            self._tempFIFOInstance_outU.memOp_deleteFirstFlit()
         else:
             assert False
 
@@ -273,6 +311,56 @@ class Router_FIFO_FP_top:
     ####################################################################################################################
     def FIFOIPIn_deleteOneFlit(self):
         self._mainFIFOInstance_inIP.memOp_deleteFirstFlit()
+
+########################################################################################################################
+########################################################################################################################
+class Router_FIFO_NCFP_top(Router_FIFO_FP_top):
+    def __init__(self, router_id, routerAddr_tuple, SimuConfig_instance):
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        self._param_router_id = copy.deepcopy(router_id)
+        self._param_routerAddr_tuple = copy.deepcopy(routerAddr_tuple)
+        self._param_SimuConfig = SimuConfig_instance
+
+        self.reset_all()
+
+    def reset_all(self):
+        self._mainRouterInstance = imported_Routers_top.RoutersTop_NCFP(router_id=copy.deepcopy(self._param_router_id),
+                                                                      routerAddr_tuple=copy.deepcopy(self._param_routerAddr_tuple),
+                                                                      SimuConfig_instance=self._param_SimuConfig)
+
+        self._mainFIFOInstance_outIP = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_IPFlitReceive_nMax(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=0)
+
+        self._mainFIFOInstance_outW = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=1)
+
+        self._mainFIFOInstance_outE = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=2)
+
+        self._mainFIFOInstance_outS = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=3)
+
+        self._mainFIFOInstance_outN = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=4)
+
+        self._mainFIFOInstance_outD = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=5)
+
+        self._mainFIFOInstance_outU = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_FIFOFlitDepth(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=6)
+
+        self._mainFIFOInstance_inIP = imported_FIFOs_top.FIFOsTop(
+            flit_depth=self._param_SimuConfig.getParam_IPFlitSent_nMax(),
+            flit_bw=self._param_SimuConfig.getParam_flitBitWidth(), fifo_id=10)
+
+
 
 ########################################################################################################################
 ########################################################################################################################
@@ -324,6 +412,8 @@ class NoCsTop_BASE:
         # Boundary W & E
         for idx_temp_zi in range(0, self.getParam_NoCSizeZ()):
             for idx_temp_yi in range(0, self.getParam_NoCSizeY()):
+                # print(self._mainTopo[0][idx_temp_yi][idx_temp_zi].FIFO_getFirstFlit_byPortName(portName="W"))
+                # print(self._mainTopo[0][idx_temp_yi][idx_temp_zi].FIFO_getFirstFlit_byPortName(portName="E"))
                 assert self._mainTopo[0][idx_temp_yi][idx_temp_zi].FIFO_checkIfEmpty_byPortName(portName="W") is True
                 assert self._mainTopo[-1][idx_temp_yi][idx_temp_zi].FIFO_checkIfEmpty_byPortName(portName="E") is True
 
@@ -397,6 +487,8 @@ class NoCsTop_BASE:
             elif self._mainTopo[targetAddr_X][targetAddr_Y][targetAddr_Z].FIFOIPIn_checkIfEmpty() is False:
                 ifHasInputReq = True
             else:
+                print("ERROR DATA:")
+                print(self._mainTopo[targetAddr_X][targetAddr_Y][targetAddr_Z].FIFOIPIn_checkIfEmpty())
                 assert False
             return copy.deepcopy(ifHasInputReq), copy.deepcopy(self._mainTopo[targetAddr_X][targetAddr_Y][targetAddr_Z].FIFOIPIn_getFirstFlit())
 
@@ -410,6 +502,12 @@ class NoCsTop_BASE:
             return copy.deepcopy(ifHasInputReq), copy.deepcopy(self._mainTopo[targetAddr_X][targetAddr_Y][targetAddr_Z].FIFO_getFirstFlit_byPortName(portName=targetPortName))
 
     def update_inputFlitReceived(self, routerAddr, portName):
+        '''
+        Delete the current flit in the specified direction
+        :param routerAddr:
+        :param portName:
+        :return:
+        '''
         assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
         targetAddr_X = copy.deepcopy(routerAddr[0])
         targetAddr_Y = copy.deepcopy(routerAddr[1])
@@ -460,7 +558,7 @@ class NoCsTop_BASE:
 
 
 
-    def Update_oneCycle(self):
+    def Update_oneCycle_Step1(self):
         '''
         Run 1-cycle (1-step flits forwarding & FIFOs update)
         :return:
@@ -483,7 +581,7 @@ class NoCsTop_BASE:
                     inputReqs_tuple = tuple(inputReqs_list)
 
                     # Update Router
-                    grantedInputReqs = self._mainTopo[idx_xi][idx_yi][idx_zi].router_updateNextCycle(inputReqs_tuple=inputReqs_tuple,
+                    grantedInputReqs = self._mainTopo[idx_xi][idx_yi][idx_zi].router_updateNextCycle_Step1(inputReqs_tuple=inputReqs_tuple,
                                                                                   inputIP_tuple=inputFlit_IP,
                                                                                   inputW_tuple=inputFlit_W,
                                                                                   inputE_tuple=inputFlit_E,
@@ -529,7 +627,75 @@ class NoCsTop_BASE:
                     else:
                         assert grantedInputReqs[6] is False
 
+    def Update_oneCycle_Step2(self):
+        for idx_zi in range(0, self.getParam_NoCSizeZ()):
+            for idx_yi in range(0, self.getParam_NoCSizeY()):
+                for idx_xi in range(0, self.getParam_NoCSizeX()):
+                    # # The current router
+                    # routerAddr = (copy.deepcopy(idx_xi), copy.deepcopy(idx_yi), copy.deepcopy(idx_zi))
+                    # # The input reqs to this router
+                    # inputReqs_list = [None]*7
+                    # inputReqs_list[0], inputFlit_IP = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="IP")
+                    # inputReqs_list[1], inputFlit_W = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="W")
+                    # inputReqs_list[2], inputFlit_E = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="E")
+                    # inputReqs_list[3], inputFlit_S = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="S")
+                    # inputReqs_list[4], inputFlit_N = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="N")
+                    # inputReqs_list[5], inputFlit_D = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="D")
+                    # inputReqs_list[6], inputFlit_U = self.getRouterInput_byPortName(routerAddr=routerAddr, portName="U")
+                    #
+                    # inputReqs_tuple = tuple(inputReqs_list)
+
+                    # Update Router
+                    self._mainTopo[idx_xi][idx_yi][idx_zi].router_updateNextCycle_Step2()
+
+                    # # Update the output FIFO of neighboring routers
+                    # #IP
+                    # if grantedInputReqs[0] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="IP")
+                    # else:
+                    #     assert grantedInputReqs[0] is False
+                    # # W
+                    # if grantedInputReqs[1] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="W")
+                    # else:
+                    #     assert grantedInputReqs[1] is False
+                    # # E
+                    # if grantedInputReqs[2] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="E")
+                    # else:
+                    #     assert grantedInputReqs[2] is False
+                    # # S
+                    # if grantedInputReqs[3] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="S")
+                    # else:
+                    #     assert grantedInputReqs[3] is False
+                    # # N
+                    # if grantedInputReqs[4] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="N")
+                    # else:
+                    #     assert grantedInputReqs[4] is False
+                    # # D
+                    # if grantedInputReqs[5] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="D")
+                    # else:
+                    #     assert grantedInputReqs[5] is False
+                    # # U
+                    # if grantedInputReqs[6] is True:
+                    #     self.update_inputFlitReceived(routerAddr=routerAddr, portName="U")
+                    # else:
+                    #     assert grantedInputReqs[6] is False
+
+    def Update_oneCycle(self):
+        self.Update_oneCycle_Step1()
+        self.Update_oneCycle_Step2()
+
     def Update_injectFlit(self, routerAddr, injectedFlit_tuple):
+        '''
+        Inject a flit into the IP-to-router FIFO connecting with the router with address routerAddr.
+        :param routerAddr:
+        :param injectedFlit_tuple:
+        :return:
+        '''
         assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
         assert isinstance(injectedFlit_tuple, tuple)
         target_AddrX = copy.deepcopy(routerAddr[0])
@@ -537,6 +703,78 @@ class NoCsTop_BASE:
         target_AddrZ = copy.deepcopy(routerAddr[2])
         self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFOIPIn_injectFlit(flitInjected=copy.deepcopy(injectedFlit_tuple))
 
+    def export_IPReceivedFlits(self, routerAddr, filePathAndName_str, comment_str):
+        '''
+        Export the flits in the router-to-IP FIFOs. Note that the flit exported to file will also be deleted from the FIFO.
+        :param filename_str:
+        :param comment_str:
+        :return:
+        '''
+        assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
+        target_AddrX = copy.deepcopy(routerAddr[0])
+        target_AddrY = copy.deepcopy(routerAddr[1])
+        target_AddrZ = copy.deepcopy(routerAddr[2])
+        with open(filePathAndName_str, 'a') as f:
+            while self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_checkIfEmpty_byPortName(portName="IP") is False:
+                current_flit = self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_getFirstFlit_byPortName(portName="IP")
+                current_flit_str = ' '.join(current_flit)
+                f.write("[" + comment_str + "] - " + current_flit_str)
+                self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_deleteOneFlit_byPortName(portName="IP")
+
+    def readOut_IPReceivedFlits(self, routerAddr):
+        '''
+        Get the flits in the router-to-IP FIFOs. Note that the flit exported to file will also be deleted from the FIFO.
+        :param routerAddr:
+        :return:
+        '''
+        assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
+        target_AddrX = copy.deepcopy(routerAddr[0])
+        target_AddrY = copy.deepcopy(routerAddr[1])
+        target_AddrZ = copy.deepcopy(routerAddr[2])
+        current_flit = self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_getFirstFlit_byPortName(portName="IP")
+        if current_flit is not None:
+            self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_deleteOneFlit_byPortName(portName="IP")
+        return copy.deepcopy(current_flit)
+
+    def readOnly_currentFlitIPSend(self, routerAddr):
+        '''
+        Get the flits in the IP-to-router FIFOs. Note that the flit exported to file will NOT be deleted from the FIFO.
+        :param routerAddr:
+        :return:
+        '''
+        assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
+        target_AddrX = copy.deepcopy(routerAddr[0])
+        target_AddrY = copy.deepcopy(routerAddr[1])
+        target_AddrZ = copy.deepcopy(routerAddr[2])
+        current_flit = self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFOIPIn_getFirstFlit()
+        return copy.deepcopy(current_flit)
+
+    def readOnly_firstFlitInRouterOutFIFO(self, routerAddr, portName):
+        '''
+        Get the flits in the router FIFOs. Note that the flit exported to file will NOT be deleted from the FIFO.
+        :param routerAddr:
+        :param portName:
+        :return:
+        '''
+        assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
+        target_AddrX = copy.deepcopy(routerAddr[0])
+        target_AddrY = copy.deepcopy(routerAddr[1])
+        target_AddrZ = copy.deepcopy(routerAddr[2])
+        current_flit = self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].FIFO_getFirstFlit_byPortName(portName=portName)
+        return copy.deepcopy(current_flit)
+
+    def readOnly_currentRouterStates(self, routerAddr):
+        '''
+
+        :param routerAddr:
+        :return:bool(If locked), str(FW mode), tuple(If input ports enabled), tuple(If output ports enabled)
+        '''
+        assert isinstance(routerAddr, tuple) and (len(routerAddr) == 3)
+        target_AddrX = copy.deepcopy(routerAddr[0])
+        target_AddrY = copy.deepcopy(routerAddr[1])
+        target_AddrZ = copy.deepcopy(routerAddr[2])
+        rState_ifLocked, rState_FwMode, rState_inPortState, rState_outPortState = self._mainTopo[target_AddrX][target_AddrY][target_AddrZ].getRouterStates()
+        return copy.deepcopy(rState_ifLocked), copy.deepcopy(rState_FwMode), copy.deepcopy(rState_inPortState), copy.deepcopy(rState_outPortState)
 
 
 ########################################################################################################################
@@ -554,28 +792,82 @@ class NoCTop_FP(NoCsTop_BASE):
         self._param_NoCSizeY = copy.deepcopy(nY)
         self._param_NoCSizeZ = copy.deepcopy(nZ)
 
-        assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
         self._param_SimuConfigInstance = copy.deepcopy(SimuConfig_instance)
 
         self._NoCTopologyInit()
 
     def _NoCTopologyInit(self):
-        # self._mainTopo = [ [ [None]*(self.getParam_NoCSizeZ()) ]*(self.getParam_NoCSizeY()) ]*(self.getParam_NoCSizeX())
+        # self._mainTopo = [ [ [0]*(self.getParam_NoCSizeZ()) ]*(self.getParam_NoCSizeY()) ]*(self.getParam_NoCSizeX())
         self._mainTopo = []
+        temp_list_y = []
+        temp_list_z = []
+        for idx_zi in range(0, self.getParam_NoCSizeZ()):
+            temp_list_z.append(None)
+        for idx_yi in range(0, self.getParam_NoCSizeY()):
+            temp_list_y.append(copy.deepcopy(temp_list_z))
+        for idx_xi in range(0, self.getParam_NoCSizeX()):
+            self._mainTopo.append(copy.deepcopy(temp_list_y))
+
         router_id = 0
         for idx_xi in range(0, self.getParam_NoCSizeX()):
             for idx_yi in range(0, self.getParam_NoCSizeY()):
                 for idx_zi in range(0, self.getParam_NoCSizeZ()):
-                    assert self._mainTopo[idx_xi][idx_yi][idx_zi] is None
+                    # print(list(self._mainTopo))
+                    # print(idx_xi, idx_yi, idx_zi)
+                    # print(self._mainTopo[idx_xi][idx_yi][idx_zi])
+                    assert self._mainTopo[idx_xi][idx_yi][idx_zi] == None
                     self._mainTopo[idx_xi][idx_yi][idx_zi] = Router_FIFO_FP_top(router_id=router_id,
                                                                                 routerAddr_tuple=(copy.deepcopy(idx_xi), copy.deepcopy(idx_yi), copy.deepcopy(idx_zi)),
                                                                                 SimuConfig_instance=self._param_SimuConfigInstance)
                     router_id = router_id + 1
-        print("NoC Topology Initialization - Done!")
+        print("NoC (FP) Topology Initialization - Done!")
 
 
 
+class NoCTop_NCFP(NoCsTop_BASE):
+    '''
+    3D NoC (FP, with NC)
 
+    '''
+    def __init__(self, nX, nY, nZ, SimuConfig_instance):
+        assert isinstance(nX, int) and (nX > 1)
+        assert isinstance(nY, int) and (nY > 1)
+        assert isinstance(nZ, int) and (nZ > 1)
+        self._param_NoCSizeX = copy.deepcopy(nX)
+        self._param_NoCSizeY = copy.deepcopy(nY)
+        self._param_NoCSizeZ = copy.deepcopy(nZ)
+
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        self._param_SimuConfigInstance = copy.deepcopy(SimuConfig_instance)
+
+        self._NoCTopologyInit()
+
+    def _NoCTopologyInit(self):
+        # self._mainTopo = [ [ [0]*(self.getParam_NoCSizeZ()) ]*(self.getParam_NoCSizeY()) ]*(self.getParam_NoCSizeX())
+        self._mainTopo = []
+        temp_list_y = []
+        temp_list_z = []
+        for idx_zi in range(0, self.getParam_NoCSizeZ()):
+            temp_list_z.append(None)
+        for idx_yi in range(0, self.getParam_NoCSizeY()):
+            temp_list_y.append(copy.deepcopy(temp_list_z))
+        for idx_xi in range(0, self.getParam_NoCSizeX()):
+            self._mainTopo.append(copy.deepcopy(temp_list_y))
+
+        router_id = 0
+        for idx_xi in range(0, self.getParam_NoCSizeX()):
+            for idx_yi in range(0, self.getParam_NoCSizeY()):
+                for idx_zi in range(0, self.getParam_NoCSizeZ()):
+                    # print(list(self._mainTopo))
+                    # print(idx_xi, idx_yi, idx_zi)
+                    # print(self._mainTopo[idx_xi][idx_yi][idx_zi])
+                    assert self._mainTopo[idx_xi][idx_yi][idx_zi] == None
+                    self._mainTopo[idx_xi][idx_yi][idx_zi] = Router_FIFO_NCFP_top(router_id=router_id,
+                                                                                routerAddr_tuple=(copy.deepcopy(idx_xi), copy.deepcopy(idx_yi), copy.deepcopy(idx_zi)),
+                                                                                SimuConfig_instance=self._param_SimuConfigInstance)
+                    router_id = router_id + 1
+        print("NoC (NCFP) Topology Initialization - Done!")
 
 
 

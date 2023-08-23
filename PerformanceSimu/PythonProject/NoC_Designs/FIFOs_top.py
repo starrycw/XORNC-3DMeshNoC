@@ -65,6 +65,7 @@ class FIFOsTop:
             return True
         else:
             assert self.getState_flitCount() <= self.getParam_fifoDepth()
+            return False
 
     def memOp_getFirstFlit(self):
         if self.getState_ifEmpty():
@@ -81,10 +82,13 @@ class FIFOsTop:
         '''
         assert not self.getState_ifEmpty()
         old_memList = list(self.memOp_getAllFlits())
-        new_memList = old_memList.pop(0)
-        new_memTuple = tuple(new_memList)
+        old_memList.pop(0)
+        new_memTuple = tuple(old_memList)
         new_memFlitCnt = len(new_memTuple)
-        assert new_memFlitCnt == (self.getState_flitCount() - 1)
+        if not new_memFlitCnt == (self.getState_flitCount() - 1):
+            print("ERROR DATA:")
+            print(new_memFlitCnt, self.getState_flitCount())
+            assert False
 
         self._memory_tuple = copy.deepcopy(new_memTuple)
         self._memoryState_flitCount = copy.deepcopy(new_memFlitCnt)

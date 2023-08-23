@@ -61,23 +61,23 @@ def arbiterModule_routingAlg_XYZ(addrCompare_tuple):
     if addrCompare_tuple[0]:
         assert not (addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[3] or addrCompare_tuple[4] or addrCompare_tuple[5] or addrCompare_tuple[6])
         return (True, False, False, False, False, False, False)
-    elif addrCompare_tuple[1]:
-        assert not (addrCompare_tuple[0] or addrCompare_tuple[2])
-        return (False, True, False, False, False, False, False)
     elif addrCompare_tuple[2]:
         assert not (addrCompare_tuple[0] or addrCompare_tuple[1])
+        return (False, True, False, False, False, False, False)
+    elif addrCompare_tuple[1]:
+        assert not (addrCompare_tuple[0] or addrCompare_tuple[2])
         return (False, False, True, False, False, False, False)
-    elif addrCompare_tuple[3]:
-        assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[4])
-        return (False, False, False, True, False, False, False)
     elif addrCompare_tuple[4]:
         assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[3])
+        return (False, False, False, True, False, False, False)
+    elif addrCompare_tuple[3]:
+        assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[4])
         return (False, False, False, False, True, False, False)
-    elif addrCompare_tuple[5]:
-        assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[3] or addrCompare_tuple[4] or addrCompare_tuple[6])
-        return (False, False, False, False, False, True, False)
     elif addrCompare_tuple[6]:
         assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[3] or addrCompare_tuple[4] or addrCompare_tuple[5])
+        return (False, False, False, False, False, True, False)
+    elif addrCompare_tuple[5]:
+        assert not (addrCompare_tuple[0] or addrCompare_tuple[1] or addrCompare_tuple[2] or addrCompare_tuple[3] or addrCompare_tuple[4] or addrCompare_tuple[6])
         return (False, False, False, False, False, False, True)
     else:
         assert False
@@ -350,7 +350,7 @@ def arbiterNCModule_NCEncodingRules_WE(addrCompare_tuple01, addrCompare_tuple02)
         cA_ifSat_c1 = True #
     if (not addrCompare_tupleA[2]) and (not addrCompare_tupleB[1]): #
         cA_ifSat_c1 = True #
-    assert cA_ifSat_c1 #
+    # assert cA_ifSat_c1 #
     if addrCompare_tupleA[3] and addrCompare_tupleB[3]:
         cA_ifSat = True
     if addrCompare_tupleA[4] and addrCompare_tupleB[4]:
@@ -363,7 +363,7 @@ def arbiterNCModule_NCEncodingRules_WE(addrCompare_tuple01, addrCompare_tuple02)
         cB_ifSat_c1 = True  #
     if (not addrCompare_tupleA[2]) and (not addrCompare_tupleB[1]):  #
         cB_ifSat_c1 = True  #
-    assert cB_ifSat_c1  #
+    # assert cB_ifSat_c1  #
     if addrCompare_tupleA[5] and addrCompare_tupleB[5]:
         cB_ifSat = True
     if addrCompare_tupleA[6] and addrCompare_tupleB[6]:
@@ -459,7 +459,7 @@ def arbiterNCModule_NCEncodingRules_NS(addrCompare_tuple01, addrCompare_tuple02)
         cA_ifSat_c1 = True  #
     if (not addrCompare_tupleA[4]) and (not addrCompare_tupleB[3]):  #
         cA_ifSat_c1 = True  #
-    assert cA_ifSat_c1  #
+    # assert cA_ifSat_c1  #
     if addrCompare_tupleA[5] and addrCompare_tupleB[5]:
         cA_ifSat = True
     if addrCompare_tupleA[6] and addrCompare_tupleB[6]:

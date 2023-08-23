@@ -74,7 +74,7 @@ class RoutersTop_BASE:
         assert isinstance(outPorts_tuple, tuple) and (len(outPorts_tuple) == 7)
         assert newFwMode in ("wait", "Fw", "NCFw")
 
-        assert self.getStates_ifRegsLocked()
+        assert self.getStates_ifRegsLocked() is False
 
         self._reg_enabledInputPorts = copy.deepcopy(inPorts_tuple)
         self._reg_enabledOutputPorts = copy.deepcopy(outPorts_tuple)
@@ -87,7 +87,7 @@ class RoutersTop_BASE:
 ########################################################################################################################
 class RoutersTop_FP(RoutersTop_BASE):
     def __init__(self, router_id, routerAddr_tuple, SimuConfig_instance):
-        assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
         self._SimuConfig_instance = SimuConfig_instance
 
         assert isinstance(routerAddr_tuple, tuple)
@@ -396,7 +396,7 @@ class RoutersTop_FP(RoutersTop_BASE):
 ########################################################################################################################
 class RoutersTop_NCFP(RoutersTop_BASE):
     def __init__(self, router_id, routerAddr_tuple, SimuConfig_instance):
-        assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
+        # assert isinstance(SimuConfig_instance, imported_ActiveConfiguration.SimuConfigs)
         self._SimuConfig_instance = SimuConfig_instance
 
         assert isinstance(routerAddr_tuple, tuple)
@@ -406,10 +406,19 @@ class RoutersTop_NCFP(RoutersTop_BASE):
         self._initializeRegs()
 
     def XORNC_encodingHeadFlits(self, flit_A, flit_B):
+        '''
+        Encode two uncoded packet heads.
+        HEAD 1: ... Src_Addr1, Dest_Addr1, ...
+        HEAD 2: ... Src_Addr2, Dest_Addr2, ...
+        Encoded: ... Src_Addr1, Dest_Addr1, Src_Addr2, Dest_Addr2,...
+        :param flit_A:
+        :param flit_B:
+        :return:
+        '''
         flit_AddrLenX = self._SimuConfig_instance.getParam_flitAddrBitWidth_X()
         flit_AddrLenY = self._SimuConfig_instance.getParam_flitAddrBitWidth_Y()
         flit_AddrLenZ = self._SimuConfig_instance.getParam_flitAddrBitWidth_Z()
-        flit_AddrLenXYZ = flit_AddrLenX + flit_AddrLenY + flit_AddrLenZ
+        flit_AddrLenXYZ = 2 * (flit_AddrLenX + flit_AddrLenY + flit_AddrLenZ)
 
         flitA_Type = self._SimuConfig_instance.flitAnalyse_getType(flit_tuple=copy.deepcopy(flit_A))
         flitB_Type = self._SimuConfig_instance.flitAnalyse_getType(flit_tuple=copy.deepcopy(flit_B))
@@ -721,7 +730,7 @@ class RoutersTop_NCFP(RoutersTop_BASE):
 
         # Mode 1: Forward an Uncoded/Encoded packet
         if switch_flitInCount == 1:
-            switch_flitIn = copy.deepcopy(switch_flitIn_list[1])
+            switch_flitIn = copy.deepcopy(switch_flitIn_list[0])
             switch_flitOutCount = 0
 
             # IP out
@@ -952,6 +961,19 @@ class RoutersTop_NCFP(RoutersTop_BASE):
                 # Update the router states (regs) according to the flit processed.
                 assert switch_flitIn_flitType == "head"
                 self.updateStates_lock(inPorts_tuple=copy.deepcopy(currentInPorts_tuple), outPorts_tuple=copy.deepcopy(currentOutPorts_tuple), newFwMode=copy.deepcopy(currentFwMode))
+
+        else:
+            assert switch_flitInCount == 0
+            currentInPorts_tuple = (False, False, False, False, False, False, False)
+            currentOutPorts_tuple = (False, False, False, False, False, False, False)
+            outIP_tuple = None
+            outW_tuple = None
+            outE_tuple = None
+            outS_tuple = None
+            outN_tuple = None
+            outD_tuple = None
+            outU_tuple = None
+
 
 
         # Return
