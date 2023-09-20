@@ -12,8 +12,8 @@ def arbiterModule_addrCompare(addrLocal_tuple, addrDes_tuple):
     [2 bool]-if the destination address X < the local address X (des locates at W),\n
     [3 bool]-if the destination address Y > the local address Y (des locates at N),\n
     [4 bool]-if the destination address Y < the local address Y (des locates at S),\n
-    [5 bool]-if the destination address X > the local address Z (des locates at U),\n
-    [6 bool]-if the destination address X < the local address Z (des locates at D),\n
+    [5 bool]-if the destination address Z > the local address Z (des locates at U),\n
+    [6 bool]-if the destination address Z < the local address Z (des locates at D),\n
     )
 
     :param addrLocal_tuple: tuple(int, int, int) - (addressX, addressY, addressZ)
@@ -281,6 +281,20 @@ def arbiterNCModule_routingAlg_EncodedDIn(addrCompare_tupleA, addrCompare_tupleB
     # U
     if addrCompare_tupleA[5] or addrCompare_tupleB[5]:
         fwTarget_list[6] = True
+
+    # NS-Additional
+    if fwTarget_list == [False, False, False, False, False, False, False]:
+        if (not addrCompare_tupleA[5]) and (not addrCompare_tupleA[6]) and addrCompare_tupleA[4]:
+            fwTarget_list[3] = True
+        if (not addrCompare_tupleB[5]) and (not addrCompare_tupleB[6]) and addrCompare_tupleB[4]:
+            fwTarget_list[3] = True
+
+        if (not addrCompare_tupleA[5]) and (not addrCompare_tupleA[6]) and addrCompare_tupleA[3]:
+            fwTarget_list[4] = True
+        if (not addrCompare_tupleB[5]) and (not addrCompare_tupleB[6]) and addrCompare_tupleB[3]:
+            fwTarget_list[4] = True
+
+
     return tuple(fwTarget_list)
 ########################################################################################################################
 ########################################################################################################################
@@ -323,6 +337,19 @@ def arbiterNCModule_routingAlg_EncodedUIn(addrCompare_tupleA, addrCompare_tupleB
     # D
     if addrCompare_tupleA[6] or addrCompare_tupleB[6]:
         fwTarget_list[5] = True
+
+    # NS-Additional
+    if fwTarget_list == [False, False, False, False, False, False, False]:
+        if (not addrCompare_tupleA[5]) and (not addrCompare_tupleA[6]) and addrCompare_tupleA[4]:
+            fwTarget_list[3] = True
+        if (not addrCompare_tupleB[5]) and (not addrCompare_tupleB[6]) and addrCompare_tupleB[4]:
+            fwTarget_list[3] = True
+
+        if (not addrCompare_tupleA[5]) and (not addrCompare_tupleA[6]) and addrCompare_tupleA[3]:
+            fwTarget_list[4] = True
+        if (not addrCompare_tupleB[5]) and (not addrCompare_tupleB[6]) and addrCompare_tupleB[3]:
+            fwTarget_list[4] = True
+
     return tuple(fwTarget_list)
 ########################################################################################################################
 ########################################################################################################################

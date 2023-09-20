@@ -53,7 +53,7 @@ logPath_str = "/home/cwei/eda/Workspace/PyCharm_Workspace/XOR-NC"
 
 ConfigInst = imported_SimuConfigurationClass.SimuConfigs(param_flitBitWidth=128,
                                                          param_addrBitWidth_tuple=(4, 4, 4),
-                                                         param_FIFOFlitDepth=100,
+                                                         param_FIFOFlitDepth=100000,
                                                          param_IP_FlitSent_nMax=100000,
                                                          param_IP_FlitReceive_nMax=100000)
 
@@ -62,7 +62,7 @@ simuParam_case_max = 10000
 simuParam_task_max = 1
 simuParam_nPayloadFlit = 3
 simuParam_task_nSrc = 2
-simuParam_task_nDes = 6
+simuParam_task_nDes = 4
 simuParam_task_srcAddrZ_tuple = (0,)
 simuParam_task_desAddrZ_tuple = (1, 2, 3)
 cnt_stepsSumAllCase_FP = 0

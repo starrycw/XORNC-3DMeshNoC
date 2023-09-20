@@ -191,11 +191,14 @@ def arbiterNCLogic_fixedPriority(addrLocal_tuple, fifoStates_tuple, reqIP_tuple,
     elif reqD_tuple[0] and D_forwardEncoded_ifallsat and reqD_tuple[7]:
         grants_tuple = (False, False, False, False, False, True, False)
         forward_tuple = copy.deepcopy(D_forwardEncoded_target)
+        # print("### ENCODED", forward_tuple, fifoStates_tuple, reqD_tuple)
+        # print("### ", addrCompare_D_A, addrCompare_D_B)
         if_performingEncoding = False
     # D - XYZ
     elif reqD_tuple[0] and D_forwardXYZ_ifallsat and (not reqD_tuple[7]):
         grants_tuple = (False, False, False, False, False, True, False)
         forward_tuple = copy.deepcopy(D_forwardXYZ_target)
+        # print("### UNCODED", forward_tuple)
         if_performingEncoding = False
     # U - Encoded
     elif reqU_tuple[0] and U_forwardEncoded_ifallsat and reqU_tuple[7]:
@@ -212,5 +215,6 @@ def arbiterNCLogic_fixedPriority(addrLocal_tuple, fifoStates_tuple, reqIP_tuple,
         grants_tuple = (False, False, False, False, False, False, False)
         forward_tuple = (False, False, False, False, False, False, False)
         if_performingEncoding = False
+
 
     return grants_tuple, forward_tuple, if_performingEncoding

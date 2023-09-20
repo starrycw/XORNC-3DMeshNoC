@@ -74,6 +74,20 @@ class RoutersTop_BASE:
         assert isinstance(outPorts_tuple, tuple) and (len(outPorts_tuple) == 7)
         assert newFwMode in ("wait", "Fw", "NCFw")
 
+        # # Check
+        # inPortsTuple_ifSat = False
+        # outPortsTuple_ifSat = False
+        # for temp_inState_i in inPorts_tuple:
+        #     if temp_inState_i is True:
+        #         inPortsTuple_ifSat = True
+        # for temp_outState_i in outPorts_tuple:
+        #     if temp_outState_i is True:
+        #         outPortsTuple_ifSat = True
+        #
+        # if (inPortsTuple_ifSat is False) or (outPortsTuple_ifSat is False):
+        #     print("ERROR DATA: ", newFwMode, inPorts_tuple, outPorts_tuple)
+        #     assert False
+
         assert self.getStates_ifRegsLocked() is False
 
         self._reg_enabledInputPorts = copy.deepcopy(inPorts_tuple)
@@ -805,7 +819,9 @@ class RoutersTop_NCFP(RoutersTop_BASE):
 
             # Post process
             if self.getStates_ifRegsLocked() is True:
-                assert switch_flitOutCount in (1, 2)
+                if switch_flitOutCount not in (1, 2):
+                    print("ERROR DATA:", switch_flitOutCount, currentFwMode, currentInPorts_tuple, currentOutPorts_tuple, switch_flitIn_list)
+                    assert False
                 assert switch_flitInCount == 1
 
                 # Update the router states (regs) according to the flit processed.
@@ -973,6 +989,7 @@ class RoutersTop_NCFP(RoutersTop_BASE):
             outN_tuple = None
             outD_tuple = None
             outU_tuple = None
+            self.resetStates()
 
 
 
